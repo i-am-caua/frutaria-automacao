@@ -1,4 +1,4 @@
-import { collection, addDoc, getDocs, query, orderBy, where, getDocFromServer, doc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, orderBy, where, getDocFromServer, doc, updateDoc } from 'firebase/firestore';
 import { db, auth } from '../firebase';
 import { ShoppingListItem } from '../types';
 
@@ -103,6 +103,17 @@ export const getOrders = async (): Promise<Order[]> => {
     return orders;
   } catch (error) {
     handleFirestoreError(error, OperationType.LIST, path);
+    throw error;
+  }
+};
+
+export const updateOrderStatus = async (orderId: string, newStatus: string): Promise<void> => {
+  const path = `orders/${orderId}`;
+  try {
+    const orderRef = doc(db, 'orders', orderId);
+    await updateDoc(orderRef, { status: newStatus });
+  } catch (error) {
+    handleFirestoreError(error, OperationType.UPDATE, path);
     throw error;
   }
 };
