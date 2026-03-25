@@ -9,6 +9,7 @@ import { PdfIcon } from './icons/PdfIcon';
 import { TrashIcon } from './icons/TrashIcon';
 import { generateCsv, generatePdf } from '../utils/exportUtils';
 import { saveOrder } from '../services/firebaseService';
+import { auth } from '../firebase';
 
 interface OutputPanelProps {
     items: ShoppingListItem[];
@@ -30,10 +31,15 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({
     const [isSaving, setIsSaving] = useState(false);
 
     const handleSaveOrder = async () => {
+        if (!auth.currentUser) {
+            alert('Você precisa fazer login para salvar um pedido.');
+            return;
+        }
         setIsSaving(true);
         try {
             await saveOrder(items);
             alert('Pedido salvo com sucesso!');
+            onClear(); // Clear the list after saving
         } catch (error) {
             alert('Erro ao salvar o pedido. Tente novamente.');
         } finally {

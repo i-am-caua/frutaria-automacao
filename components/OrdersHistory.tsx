@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { getOrders, Order } from '../services/firebaseService';
 import { Loader } from './Loader';
+import { auth } from '../firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
 export const OrdersHistory: React.FC = () => {
     const [orders, setOrders] = useState<Order[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     const fetchOrders = async () => {
+        if (!auth.currentUser) return;
         setIsLoading(true);
         try {
             const data = await getOrders();
@@ -21,8 +25,26 @@ export const OrdersHistory: React.FC = () => {
     };
 
     useEffect(() => {
-        fetchOrders();
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setIsAuthenticated(true);
+                fetchOrders();
+            } else {
+                setIsAuthenticated(false);
+                setOrders([]);
+                setIsLoading(false);
+            }
+        });
+        return () => unsubscribe();
     }, []);
+
+    if (!isAuthenticated) {
+        return (
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg mt-8 text-center text-gray-500">
+                Faça login para ver seu histórico de pedidos.
+            </div>
+        );
+    }
 
     if (isLoading) {
         return (

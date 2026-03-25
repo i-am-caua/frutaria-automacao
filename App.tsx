@@ -7,6 +7,7 @@ import { ShoppingListItem } from './types';
 import { parseShoppingListFromImage, parseShoppingListFromText } from './services/geminiService';
 import { extractTextFromPdf, parseCsv } from './utils/fileUtils';
 import { OrdersHistory } from './components/OrdersHistory';
+import { testConnection } from './services/firebaseService';
 
 const App: React.FC = () => {
     const [items, setItems] = useState<ShoppingListItem[]>([]);
@@ -14,6 +15,10 @@ const App: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [ignoredLines, setIgnoredLines] = useState<string[]>([]);
     const [showOutput, setShowOutput] = useState<boolean>(false);
+
+    React.useEffect(() => {
+        testConnection();
+    }, []);
 
     const handleProcessing = async (processor: () => Promise<ShoppingListItem[]>) => {
         setIsLoading(true);

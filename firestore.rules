@@ -1,0 +1,60 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    // Collection: orders
+    // Document ID: auto-generated
+    // Fields:
+    //   - createdAt: string (required) - ISO 8601 date string
+    //   - status: string (required) - enum ['Pendente', 'Aprovado', 'Cancelado']
+    //   - items: list (required) - array of ShoppingListItem objects
+    //   - totalItems: number (required) - total quantity of items
+    //   - authorUID: string (required) - user ID of the creator
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+       return request.auth != null;
+    }
+    function isOwner(userId) {
+       return isAuthenticated() && request.auth.uid == userId;
+    }
+    function isDocOwner() {
+       return isAuthenticated() && request.auth.uid == resource.data.authorUID;
+    }
+    function uidNotModified() {
+       return !('authorUID' in request.resource.data) || request.resource.data.authorUID == resource.data.authorUID;
+    }
+    function hasRequiredFields(fields) {
+       return request.resource.data.keys().hasAll(fields);
+    }
+    function isValidDateString(dateStr) {
+      return dateStr is string && dateStr.matches("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*Z?$");
+    }
+    function isAdmin() {
+      return isAuthenticated() && (
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin') ||
+        (request.auth.token.email == "cauas4690@gmail.com" && request.auth.token.email_verified == true)
+      );
+    }
+
+    // Domain Validators
+    function isValidOrder(data) {
+      return hasRequiredFields(['createdAt', 'status', 'items', 'totalItems', 'authorUID']) &&
+             isValidDateString(data.createdAt) &&
+             data.status in ['Pendente', 'Aprovado', 'Cancelado'] &&
+             data.items is list && data.items.size() <= 100 &&
+             data.totalItems is number && data.totalItems >= 0 &&
+             data.authorUID is string && data.authorUID.size() > 0 && data.authorUID.size() < 50;
+    }
+
+    match /orders/{orderId} {
+      allow read: if isAuthenticated() && (resource.data.authorUID == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && isValidOrder(request.resource.data) && request.resource.data.authorUID == request.auth.uid;
+      allow update: if isAuthenticated() && isValidOrder(request.resource.data) && isDocOwner() && uidNotModified() && request.resource.data.createdAt == resource.data.createdAt;
+      allow delete: if isAuthenticated() && (isDocOwner() || isAdmin());
+    }
+  }
+}
