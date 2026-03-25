@@ -100,7 +100,7 @@ const parseWithGemini = async (promptParts: any[]): Promise<ShoppingListItem[]> 
             const isUnitLike = [
                 'un', 'unidade', 'unidades', 'und', 'uni', 'pc', 'pça', 'pca',
                 'bdj', 'bandeja', 'bandejas',
-                'maço', 'maco', 'macos', 'maços',
+                'maço', 'maco', 'macos', 'maços', 'moe', 'moio', 'moios',
                 'penca', 'pencas',
                 'pe', 'pé', 'pes', 'pés',
                 'cacho', 'cachos',
