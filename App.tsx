@@ -6,6 +6,7 @@ import { OutputPanel } from './components/OutputPanel';
 import { ShoppingListItem } from './types';
 import { parseShoppingListFromImage, parseShoppingListFromText } from './services/geminiService';
 import { extractTextFromPdf, parseCsv } from './utils/fileUtils';
+import { OrdersHistory } from './components/OrdersHistory';
 
 const App: React.FC = () => {
     const [items, setItems] = useState<ShoppingListItem[]>([]);
@@ -137,6 +138,11 @@ const App: React.FC = () => {
                     onClear={handleClear}
                 />
             </main>
+            
+            <section className="mt-12">
+                <OrdersHistory />
+            </section>
+
             <footer className="text-center mt-12 text-sm text-gray-500 dark:text-gray-400">
                 <p>Powered by AI. Reimagined for the web.</p>
             </footer>

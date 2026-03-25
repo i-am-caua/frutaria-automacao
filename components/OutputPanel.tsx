@@ -8,6 +8,7 @@ import { CsvIcon } from './icons/CsvIcon';
 import { PdfIcon } from './icons/PdfIcon';
 import { TrashIcon } from './icons/TrashIcon';
 import { generateCsv, generatePdf } from '../utils/exportUtils';
+import { saveOrder } from '../services/firebaseService';
 
 interface OutputPanelProps {
     items: ShoppingListItem[];
@@ -26,6 +27,19 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({
     onUpdateItem, onDeleteItem, onAddItem, onClear
 }) => {
     const [customFileName, setCustomFileName] = useState('');
+    const [isSaving, setIsSaving] = useState(false);
+
+    const handleSaveOrder = async () => {
+        setIsSaving(true);
+        try {
+            await saveOrder(items);
+            alert('Pedido salvo com sucesso!');
+        } catch (error) {
+            alert('Erro ao salvar o pedido. Tente novamente.');
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
     if (!showOutput) {
         return (
@@ -78,6 +92,16 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({
 
                     {items.length > 0 && (
                         <div className="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+                            <div className="mb-6">
+                                <button 
+                                    onClick={handleSaveOrder} 
+                                    disabled={isSaving}
+                                    className="w-full bg-blue-600 text-white font-bold py-4 px-4 rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center text-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {isSaving ? 'Salvando...' : '📦 Aprovar e Salvar Pedido'}
+                                </button>
+                            </div>
+
                             <div className="mb-4">
                                 <label htmlFor="fileName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                     Nome do Arquivo (Opcional):
