@@ -128,7 +128,7 @@ export const MAPEAMENTO_NOMES: { [key: string]: string } = {
     'ALFACE CRESPA': 'ALFACE GRANDE',
     'ALFACE AMERICANA': 'ALFACE GRANDE',
     'ALFACE LISA': 'ALFACE GRANDE',
-    'BANANA': 'BANANA PRATA', // Default para Banana
+    'BANANA': 'BANANA MACA', // Default para Banana
     'BANANA NANICA': 'BANANA PRATA',
     'BANANA DE FRITAR': 'BANANA FRITAR',
     'BANANA TERRA': 'BANANA FRITAR',

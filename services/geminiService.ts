@@ -40,7 +40,7 @@ const systemInstruction = `You are an expert shopping list parser from Brazil. Y
 
 RULES:
 - Convert fractional words to numbers: "meio" to 0.5.
-- Normalize product names based on common Brazilian Portuguese variations. For instance, 'Batatinha' or 'Batata Inglesa' should be 'Batata'. 'Banana Maçã' should be 'Banana'.
+- Normalize product names based on common Brazilian Portuguese variations. For instance, 'Batatinha' or 'Batata Inglesa' should be 'Batata'.
 - If an item has no quantity, assume 1 unit.
 - **Unit Handling:**
   - Standardize generic units: "unidades" -> "un", "quilos" -> "kg", "gramas" -> "g".
