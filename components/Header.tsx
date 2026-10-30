@@ -1,12 +1,13 @@
-
 import React, { useState, useEffect } from 'react';
-import { SunIcon } from './icons/SunIcon';
-import { MoonIcon } from './icons/MoonIcon';
 import { auth } from '../firebase';
 import { signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, User } from 'firebase/auth';
 
-export const Header: React.FC = () => {
-    const [isDarkMode, setIsDarkMode] = useState(false);
+interface HeaderProps {
+    activeSection: 'workspace' | 'catalog' | 'history';
+    onNavigate: (section: 'workspace' | 'catalog' | 'history') => void;
+}
+
+export const Header: React.FC<HeaderProps> = ({ activeSection, onNavigate }) => {
     const [user, setUser] = useState<User | null>(null);
 
     useEffect(() => {
@@ -33,64 +34,77 @@ export const Header: React.FC = () => {
         }
     };
 
-    useEffect(() => {
-        const theme = localStorage.getItem('theme');
-        if (theme === 'dark') {
-            setIsDarkMode(true);
-        } else if (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            setIsDarkMode(true);
-            document.documentElement.classList.add('dark');
-        }
-    }, []);
-
-    const toggleTheme = () => {
-        if (isDarkMode) {
-            document.documentElement.classList.remove('dark');
-            localStorage.setItem('theme', 'light');
-        } else {
-            document.documentElement.classList.add('dark');
-            localStorage.setItem('theme', 'dark');
-        }
-        setIsDarkMode(!isDarkMode);
-    };
-
     return (
-        <header className="text-center relative">
-            <h1 className="text-3xl md:text-4xl font-bold text-blue-600 dark:text-blue-400">
-                🚀 Super Gerador de Listas IA 🚀
-            </h1>
-            <p className="text-gray-600 dark:text-gray-300 mt-2">
-                Crie listas de compras a partir de texto ou fotos usando o poder da IA!
-            </p>
-            
-            <div className="absolute top-0 right-0 flex items-center gap-4">
-                {user ? (
-                    <div className="flex items-center gap-3">
-                        <span className="text-sm text-gray-600 dark:text-gray-300 hidden md:inline">
-                            Olá, {user.displayName?.split(' ')[0]}
-                        </span>
-                        <button 
-                            onClick={handleLogout}
-                            className="text-sm bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900 dark:text-red-200 px-3 py-1.5 rounded transition-colors"
-                        >
-                            Sair
-                        </button>
-                    </div>
-                ) : (
-                    <button 
-                        onClick={handleLogin}
-                        className="text-sm bg-blue-100 text-blue-600 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-200 px-3 py-1.5 rounded transition-colors"
-                    >
-                        Entrar com Google
-                    </button>
-                )}
-                <button
-                    onClick={toggleTheme}
-                    className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-                    aria-label="Toggle dark mode"
+        <header className="sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-slate-200 dark:border-slate-800">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-8">
+                {/* Zone 1: Single text element wordmark */}
+                <a
+                    href="#workspace"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        onNavigate('workspace');
+                    }}
+                    className="font-display text-lg font-bold tracking-tight text-slate-900 dark:text-slate-100 whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 rounded"
                 >
-                    {isDarkMode ? <SunIcon /> : <MoonIcon />}
-                </button>
+                    Mercato Cotação
+                </a>
+
+                {/* Zone 2: Clean single-line navigation links */}
+                <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600 dark:text-slate-400">
+                    <button
+                        type="button"
+                        onClick={() => onNavigate('workspace')}
+                        className={`py-1 border-b-2 transition-colors whitespace-nowrap shrink-0 ${
+                            activeSection === 'workspace'
+                                ? 'border-emerald-600 text-slate-900 dark:text-slate-100 dark:border-emerald-500'
+                                : 'border-transparent hover:text-slate-900 dark:hover:text-slate-200'
+                        }`}
+                    >
+                        Mesa de Cotação
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => onNavigate('catalog')}
+                        className={`py-1 border-b-2 transition-colors whitespace-nowrap shrink-0 ${
+                            activeSection === 'catalog'
+                                ? 'border-emerald-600 text-slate-900 dark:text-slate-100 dark:border-emerald-500'
+                                : 'border-transparent hover:text-slate-900 dark:hover:text-slate-200'
+                        }`}
+                    >
+                        Tabela de Preços
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => onNavigate('history')}
+                        className={`py-1 border-b-2 transition-colors whitespace-nowrap shrink-0 ${
+                            activeSection === 'history'
+                                ? 'border-emerald-600 text-slate-900 dark:text-slate-100 dark:border-emerald-500'
+                                : 'border-transparent hover:text-slate-900 dark:hover:text-slate-200'
+                        }`}
+                    >
+                        Histórico de Pedidos
+                    </button>
+                </nav>
+
+                {/* Zone 3: 1 primary action */}
+                <div className="flex items-center shrink-0">
+                    {user ? (
+                        <button
+                            onClick={handleLogout}
+                            className="px-4 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors whitespace-nowrap shrink-0"
+                            title={user.email || 'Encerrar sessão'}
+                        >
+                            Sair ({user.displayName?.split(' ')[0] || 'Conta'})
+                        </button>
+                    ) : (
+                        <button
+                            onClick={handleLogin}
+                            className="px-4 py-2 text-xs font-medium text-white bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-500 rounded-lg transition-colors whitespace-nowrap shrink-0"
+                        >
+                            Entrar na Conta
+                        </button>
+                    )}
+                </div>
             </div>
         </header>
     );

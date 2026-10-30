@@ -1,15 +1,15 @@
-
 import React from 'react';
 
 export const Loader: React.FC = () => {
     return (
         <div className="flex flex-col items-center justify-center">
             <div
-                className="w-12 h-12 rounded-full animate-spin border-4 border-solid border-blue-500 border-t-transparent"
+                className="w-8 h-8 rounded-full animate-spin border-2 border-solid border-emerald-600 border-t-transparent"
                 role="status"
-            >
-            </div>
-            <p className="mt-4 text-gray-600 dark:text-gray-300">Processando com IA...</p>
+            />
+            <p className="mt-3 text-xs font-medium text-slate-500 dark:text-slate-400">
+                Padronizando itens e convertendo unidades...
+            </p>
         </div>
     );
 };
